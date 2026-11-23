@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<title>英検準1級｜大問1 直前特訓</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #101827;
+    --panel: #182437;
+    --panel-2: #202f45;
+    --line: #34445c;
+    --text: #f4f7fb;
+    --muted: #aab7c9;
+    --accent: #67d5c2;
+    --accent-dark: #123f3a;
+    --red: #ff7777;
+    --green: #69d7a7;
+    --yellow: #f4c96b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  button, select { font: inherit; }
+  button { cursor: pointer; }
+  .app { width: min(100% - 28px, 820px); margin: 0 auto; padding: 22px 0 40px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+  h1 { font-size: clamp(1.25rem, 4vw, 1.7rem); line-height: 1.3; margin: 0; letter-spacing: .01em; }
+  .subtitle { color: var(--muted); font-size: .82rem; margin-top: 5px; }
+  .reset {
+    flex: 0 0 auto; color: var(--muted); background: transparent; border: 1px solid var(--line);
+    border-radius: 10px; padding: 8px 10px; font-size: .78rem;
+  }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .progress-panel { margin-bottom: 14px; }
+  .progress-top { display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:.88rem; }
+  .progress-top strong { font-variant-numeric: tabular-nums; }
+  .progress-track { height: 9px; background: #34445c; border-radius: 99px; overflow:hidden; margin: 10px 0 8px; }
+  .progress-fill { height:100%; width:0; background:var(--accent); border-radius:99px; transition:width .2s; }
+  .stats { display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-size:.78rem; }
+  .controls { display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:14px; }
+  .control label { display:block; color:var(--muted); font-size:.75rem; margin:0 0 5px 2px; }
+  select {
+    width:100%; color:var(--text); background:var(--panel-2); border:1px solid var(--line);
+    border-radius:10px; padding:11px 36px 11px 12px; min-height:46px;
+  }
+  .question-panel { padding:18px; }
+  .question-meta { display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--muted); font-size:.8rem; margin-bottom:14px; }
+  .timer { font-variant-numeric:tabular-nums; font-weight:700; color:var(--accent); }
+  .timer.over { color:var(--red); }
+  .question { font-size:clamp(1.1rem, 4.5vw, 1.42rem); line-height:1.75; font-weight:650; overflow-wrap:anywhere; margin:0 0 20px; }
+  .choices { display:grid; gap:9px; }
+  .choice {
+    display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left;
+    color:var(--text); background:var(--panel-2); border:1px solid var(--line);
+    border-radius:12px; padding:13px 14px; min-height:54px; transition:border-color .15s, background .15s;
+  }
+  .choice:focus-visible, button:focus-visible, select:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  .choice:not(:disabled):active { transform:scale(.995); }
+  .choice:disabled { cursor:default; opacity:1; }
+  .choice-num {
+    display:grid; place-items:center; width:27px; height:27px; flex:0 0 27px;
+    border-radius:8px; background:#34445c; color:#fff; font-size:.83rem; font-weight:750;
+  }
+  .choice.correct { border-color:var(--green); background:#17372f; }
+  .choice.correct .choice-num { background:var(--green); color:#09251b; }
+  .choice.wrong { border-color:var(--red); background:#3b252d; }
+  .choice.wrong .choice-num { background:var(--red); color:#2b1015; }
+  .feedback { margin-top:16px; }
+  .result { font-weight:800; font-size:1.05rem; margin-bottom:8px; }
+  .result.good { color:var(--green); } .result.bad { color:var(--red); }
+  .translation, .explanation { color:#e2e9f2; font-size:.91rem; }
+  .translation { margin-bottom:12px; }
+  .feedback h3 { font-size:.83rem; color:var(--muted); margin:15px 0 8px; }
+  .meaning-list { list-style:none; padding:0; margin:0; display:grid; gap:7px; }
+  .meaning-list li { background:var(--panel-2); border:1px solid transparent; border-radius:9px; padding:9px 11px; font-size:.84rem; }
+  .meaning-list li.correct-meaning { border-color:var(--green); background:#17372f; }
+  .meaning-list b { display:inline-block; min-width:23px; color:var(--muted); }
+  .meaning-list .answer-tag { color:var(--green); font-size:.72rem; margin-left:7px; font-weight:700; }
+  .actions { display:flex; gap:9px; margin-top:17px; }
+  .primary, .secondary {
+    border:0; border-radius:11px; padding:13px 16px; min-height:48px; font-weight:750;
+  }
+  .primary { flex:1; color:#062a27; background:var(--accent); }
+  .primary:disabled { opacity:.4; cursor:not-allowed; }
+  .secondary { color:var(--text); background:var(--panel-2); border:1px solid var(--line); }
+  .hint { color:var(--muted); font-size:.73rem; margin-top:12px; text-align:center; }
+  .empty { text-align:center; padding:34px 16px; color:var(--muted); }
+  .empty strong { display:block; color:var(--text); font-size:1.05rem; margin-bottom:7px; }
+  .hidden { display:none !important; }
+  @media (min-width:650px) {
+    .app { padding-top:34px; }
+    .controls { grid-template-columns:1fr 1fr; }
+    .question-panel { padding:24px; }
+    .choices { grid-template-columns:1fr 1fr; }
+    .choice { min-height:64px; align-items:center; }
+  }
+  @media (prefers-reduced-motion:reduce) { *, *::before, *::after { transition:none !important; } }
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div>
+      <h1>英検準1級｜大問1 直前特訓</h1>
+      <div class="subtitle">短文語句空所補充 · 1問ずつテンポよく演習</div>
+    </div>
+    <button class="reset" id="resetBtn" type="button">履歴をリセット</button>
+  </header>
+
+  <section class="panel progress-panel" aria-label="学習進捗">
+    <div class="progress-top">
+      <span>習得済み</span>
+      <strong id="masteredCount">0 / 0問</strong>
+    </div>
+    <div class="progress-track" role="progressbar" aria-label="習得済み問題数" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="stats">
+      <span>累計正答率 <strong id="accuracy">—</strong></span>
+      <span>要復習 <strong id="reviewCount">0問</strong></span>
+      <span>解答数 <strong id="attemptCount">0問</strong></span>
+    </div>
+  </section>
+
+  <section class="controls" aria-label="出題設定">
+    <div class="control">
+      <label for="sessionFilter">出題範囲</label>
+      <select id="sessionFilter">
+        <option value="all">すべて</option>
+        <option value="2018-2">2018-2</option>
+        <option value="2018-1">2018-1</option>
+        <option value="2017-3">2017-3</option>
+        <option value="2017-2">2017-2</option>
+        <option value="2017-1">2017-1</option>
+        <option value="2016-3">2016-3</option>
+      </select>
+    </div>
+    <div class="control">
+      <label for="modeFilter">出題モード</label>
+      <select id="modeFilter">
+        <option value="all">全問ランダム</option>
+        <option value="review">間違えた問題だけ復習</option>
+        <option value="unmastered">未正解の問題のみ</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="panel question-panel" aria-live="polite">
+    <div id="quizArea">
+      <div class="question-meta">
+        <span id="questionPosition">準備中</span>
+        <span class="timer" id="timer">00秒</span>
+      </div>
+      <p class="question" id="questionText"></p>
+      <div class="choices" id="choices"></div>
+      <div class="feedback hidden" id="feedback">
+        <div class="result" id="resultText"></div>
+        <div class="translation" id="translation"></div>
+        <h3>選択肢の意味</h3>
+        <ul class="meaning-list" id="meaningList"></ul>
+        <h3>解説</h3>
+        <div class="explanation" id="explanation"></div>
+      </div>
+      <div class="actions">
+        <button class="secondary hidden" id="skipBtn" type="button">この問題を飛ばす</button>
+        <button class="primary" id="nextBtn" type="button" disabled>回答を選択</button>
+      </div>
+      <div class="hint" id="shortcutHint">PC：1〜4で回答 ／ Enter・Spaceで次の問題</div>
+    </div>
+    <div class="empty hidden" id="emptyState">
+      <strong id="emptyTitle">対象の問題がありません</strong>
+      <span id="emptyMessage">出題範囲またはモードを変更してください。</span>
+    </div>
+  </section>
+</main>
+
+<script>
+/*
+ * 問題データはこの配列に追加してください。
+ * answer は 1〜4 の1始まりです（選択肢の番号と一致）。
+ */
+const QUESTIONS = [
+  {
+    "id": "demo-01",
+    "session": "2017-2",
+    "number": 1,
+    "question": "The committee decided to (   ) the proposal until more information became available.",
+    "choices": ["postpone", "inherit", "conquer", "disclose"],
+    "answer": 1,
+    "translation": "委員会は、より多くの情報が得られるまで、その提案を延期することにした。",
+    "choiceMeanings": ["延期する", "相続する・受け継ぐ", "征服する", "公表する・暴露する"],
+    "explanation": "until more information became available（より多くの情報が得られるまで）という時間表現から、決定を先送りする postpone が適切です。"
+  },
+  {
+    "id": "demo-02",
+    "session": "2018-1",
+    "number": 2,
+    "question": "The new policy is intended to (   ) the gap between urban and rural schools.",
+    "choices": ["widen", "bridge", "neglect", "interrupt"],
+    "answer": 2,
+    "translation": "その新しい政策は、都市部と農村部の学校の格差を埋めることを目的としている。",
+    "choiceMeanings": ["広げる", "橋渡しをする・隔たりを埋める", "無視する・怠る", "中断する"],
+    "explanation": "bridge the gap は「隔たり・格差を埋める」という定型表現です。政策の目的として自然です。"
+  },
+  {
+    "id": "demo-03",
+    "session": "2016-3",
+    "number": 3,
+    "question": "Although the task seemed simple, it required considerable (   ) to complete it accurately.",
+    "choices": ["permission", "patience", "poverty", "permission"],
+    "answer": 2,
+    "translation": "その作業は簡単そうに見えたが、正確に終えるにはかなりの忍耐力が必要だった。",
+    "choiceMeanings": ["許可", "忍耐・根気", "貧困", "許可"],
+    "explanation": "Although 以下で「簡単そうに見えたが、実際には必要なものがあった」と対比しています。正確に完了するために必要なのは patience（忍耐・根気）です。"
+  }
+];
+
+(() => {
+  "use strict";
+  const STORAGE_KEY = "eiken-pre1-reading-part1-progress-v1";
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    session: $("sessionFilter"), mode: $("modeFilter"), mastered: $("masteredCount"),
+    accuracy: $("accuracy"), review: $("reviewCount"), attempts: $("attemptCount"),
+    progress: $("progressFill"), progressBar: $("progressBar"), position: $("questionPosition"),
+    timer: $("timer"), question: $("questionText"), choices: $("choices"),
+    feedback: $("feedback"), result: $("resultText"), translation: $("translation"),
+    meanings: $("meaningList"), explanation: $("explanation"), next: $("nextBtn"),
+    skip: $("skipBtn"), reset: $("resetBtn"), quiz: $("quizArea"), empty: $("emptyState"),
+    emptyTitle: $("emptyTitle"), emptyMessage: $("emptyMessage")
+  };
+
+  let progress = loadProgress();
+  let queue = [];
+  let queueIndex = 0;
+  let current = null;
+  let answered = false;
+  let startedAt = 0;
+  let elapsed = 0;
+  let timerHandle = null;
+  let sessionCorrect = 0;
+  let sessionAnswered = 0;
+
+  function loadProgress() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (_) { return {}; }
+  }
+  function saveProgress() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+    catch (_) { /* Safariのプライベートブラウズ等で保存できない場合も演習は続行 */ }
+  }
+  function stateFor(id) {
+    return progress[id] || { status: "new", attempts: 0, correct: 0 };
+  }
+  function allStats() {
+    let mastered = 0, review = 0, attempts = 0, correct = 0;
+    QUESTIONS.forEach(q => {
+      const s = stateFor(q.id);
+      if (s.status === "mastered") mastered++;
+      if (s.status === "review") review++;
+      attempts += Number(s.attempts) || 0;
+      correct += Number(s.correct) || 0;
+    });
+    return { mastered, review, attempts, correct };
+  }
+  function renderStats() {
+    const s = allStats();
+    const total = QUESTIONS.length;
+    const pct = total ? Math.round(s.mastered / total * 100) : 0;
+    els.mastered.textContent = `${s.mastered} / ${total}問`;
+    els.progress.style.width = pct + "%";
+    els.progressBar.setAttribute("aria-valuemax", String(total));
+    els.progressBar.setAttribute("aria-valuenow", String(s.mastered));
+    els.accuracy.textContent = s.attempts ? `${Math.round(s.correct / s.attempts * 100)}%` : "—";
+    els.review.textContent = `${s.review}問`;
+    els.attempts.textContent = `${s.attempts}問`;
+  }
+  function shuffle(items) {
+    const a = items.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function makeQueue() {
+    const session = els.session.value;
+    const mode = els.mode.value;
+    let list = QUESTIONS.filter(q => session === "all" || q.session === session);
+    if (mode === "review") list = list.filter(q => stateFor(q.id).status === "review");
+    if (mode === "unmastered") list = list.filter(q => stateFor(q.id).status !== "mastered");
+    return shuffle(list);
+  }
+  function stopTimer() {
+    if (timerHandle) clearInterval(timerHandle);
+    timerHandle = null;
+  }
+  function updateTimer() {
+    elapsed = Math.floor((Date.now() - startedAt) / 1000);
+    els.timer.textContent = `${String(elapsed).padStart(2, "0")}秒`;
+    els.timer.classList.toggle("over", elapsed > 20);
+  }
+  function startTimer() {
+    stopTimer();
+    startedAt = Date.now();
+    elapsed = 0;
+    updateTimer();
+    timerHandle = setInterval(() => { if (!answered) updateTimer(); }, 250);
+  }
+  function beginRun() {
+    stopTimer();
+    queue = makeQueue();
+    queueIndex = 0;
+    sessionCorrect = 0;
+    sessionAnswered = 0;
+    if (!queue.length) {
+      current = null;
+      els.quiz.classList.add("hidden");
+      els.empty.classList.remove("hidden");
+      els.emptyTitle.textContent = "対象の問題がありません";
+      const mode = els.mode.value;
+      els.emptyMessage.textContent = mode === "review"
+        ? "要復習の問題はありません。間違えた問題ができると、ここに追加されます。"
+        : mode === "unmastered"
+          ? "この範囲の問題はすべて習得済みです。"
+          : "この出題範囲には問題データがありません。";
+      return;
+    }
+    els.empty.classList.add("hidden");
+    els.quiz.classList.remove("hidden");
+    renderQuestion();
+  }
+  function renderQuestion() {
+    stopTimer();
+    current = queue[queueIndex];
+    answered = false;
+    els.position.textContent = `${queueIndex + 1} / ${queue.length}問 · ${current.session} 第${current.number}問`;
+    els.question.textContent = current.question;
+    els.choices.replaceChildren();
+    current.choices.forEach((choice, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "choice";
+      button.dataset.index = String(index + 1);
+      const num = document.createElement("span");
+      num.className = "choice-num";
+      num.textContent = String(index + 1);
+      const label = document.createElement("span");
+      label.textContent = choice;
+      button.append(num, label);
+      button.addEventListener("click", () => answer(index + 1));
+      els.choices.append(button);
+    });
+    els.feedback.classList.add("hidden");
+    els.skip.classList.remove("hidden");
+    els.next.disabled = true;
+    els.next.textContent = "回答を選択";
+    els.timer.classList.remove("over");
+    startTimer();
+  }
+  function answer(selected) {
+    if (!current || answered) return;
+    answered = true;
+    updateTimer();
+    stopTimer();
+    const isCorrect = selected === current.answer;
+    const old = stateFor(current.id);
+    progress[current.id] = {
+      status: isCorrect ? "mastered" : "review",
+      attempts: (Number(old.attempts) || 0) + 1,
+      correct: (Number(old.correct) || 0) + (isCorrect ? 1 : 0)
+    };
+    saveProgress();
+    sessionAnswered++;
+    if (isCorrect) sessionCorrect++;
+    [...els.choices.children].forEach((button, index) => {
+      button.disabled = true;
+      if (index + 1 === current.answer) button.classList.add("correct");
+      if (index + 1 === selected && !isCorrect) button.classList.add("wrong");
+    });
+    els.result.textContent = isCorrect ? `正解！ (${elapsed}秒)` : `不正解。正解は ${current.answer}：${current.choices[current.answer - 1]}`;
+    els.result.className = "result " + (isCorrect ? "good" : "bad");
+    els.translation.textContent = "訳： " + current.translation;
+    els.meanings.replaceChildren();
+    current.choices.forEach((choice, index) => {
+      const li = document.createElement("li");
+      if (index + 1 === current.answer) li.classList.add("correct-meaning");
+      const b = document.createElement("b");
+      b.textContent = `${index + 1}.`;
+      const meaning = document.createElement("span");
+      meaning.textContent = `${choice} — ${current.choiceMeanings[index]}`;
+      li.append(b, meaning);
+      if (index + 1 === current.answer) {
+        const tag = document.createElement("span");
+        tag.className = "answer-tag";
+        tag.textContent = "正解";
+        li.append(tag);
+      }
+      els.meanings.append(li);
+    });
+    els.explanation.textContent = current.explanation;
+    els.feedback.classList.remove("hidden");
+    els.skip.classList.add("hidden");
+    els.next.disabled = false;
+    els.next.textContent = queueIndex === queue.length - 1 ? "結果を確認" : "次の問題へ";
+    renderStats();
+  }
+  function nextQuestion() {
+    if (!answered) return;
+    queueIndex++;
+    if (queueIndex >= queue.length) {
+      showSummary();
+      return;
+    }
+    renderQuestion();
+  }
+  function showSummary() {
+    stopTimer();
+    current = null;
+    els.quiz.classList.add("hidden");
+    els.empty.classList.remove("hidden");
+    els.emptyTitle.textContent = "今回の演習が終了しました";
+    const rate = sessionAnswered ? Math.round(sessionCorrect / sessionAnswered * 100) : 0;
+    els.emptyMessage.textContent = `${sessionAnswered}問中 ${sessionCorrect}問正解（正答率 ${rate}%）。設定を変えるか、もう一度演習できます。`;
+    renderStats();
+  }
+  function skipQuestion() {
+    if (!current || answered) return;
+    stopTimer();
+    queue.splice(queueIndex, 1);
+    if (queueIndex >= queue.length) {
+      if (queue.length) queueIndex = queue.length - 1;
+      else {
+        els.quiz.classList.add("hidden");
+        els.empty.classList.remove("hidden");
+        els.emptyTitle.textContent = "演習を終了しました";
+        els.emptyMessage.textContent = "スキップした問題は学習履歴に記録していません。";
+        current = null;
+        return;
+      }
+    }
+    renderQuestion();
+  }
+
+  els.next.addEventListener("click", nextQuestion);
+  els.skip.addEventListener("click", skipQuestion);
+  els.session.addEventListener("change", beginRun);
+  els.mode.addEventListener("change", beginRun);
+  els.reset.addEventListener("click", () => {
+    if (!confirm("学習履歴（正解済み・要復習・解答数）をすべてリセットします。よろしいですか？")) return;
+    progress = {};
+    saveProgress();
+    renderStats();
+    beginRun();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.target && ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
+    if (!current) return;
+    if (!answered && /^[1-4]$/.test(event.key)) {
+      event.preventDefault();
+      answer(Number(event.key));
+    } else if (answered && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      nextQuestion();
+    }
+  });
+
+  renderStats();
+  beginRun();
+})();
+</script>
+</body>
+</html>
